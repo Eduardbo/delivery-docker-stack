@@ -1,12 +1,24 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Delete, Body, Param, NotFoundException, ParseIntPipe } from '@nestjs/common';
 import { AppService } from './app.service.js';
+import { User } from './users/user.entity.js'
 
-@Controller()
+@Controller("users")
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Post()
+  async addUser(@Body() user:Partial<User> ): Promise<User> {
+    return this.appService.addUser(user);
+  }
+
+  @Get(":id")
+  async getUser(@Param("id", ParseIntPipe) id: number): Promise<User>{
+    const user  = await this.appService.getUser(id);
+    
+    if(!user){
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return user;
   }
 }
